@@ -1,0 +1,8 @@
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\bin\x86\Release\MidiPlayer.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\bin\x86\Release\MidiPlayer.pdb
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\bin\x86\Release\Terraria.exe
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\x86\Release\MidiPlayer.csproj.CoreCompileInputs.cache
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\x86\Release\MidiPlayer.csproj.CopyComplete
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\x86\Release\MidiPlayer.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\x86\Release\MidiPlayer.pdb
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\x86\Release\MidiPlayer.csprojAssemblyReference.cache

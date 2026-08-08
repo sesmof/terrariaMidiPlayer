@@ -1,0 +1,7 @@
+{
+	"key":"原神niubi",//模组的key, 写啥都行
+	"version":"1.0",//版本, 写啥都行
+	"isEnable":true,//是否启用
+	"dllPath":null,//模组dll在模组文件夹下的路径, 没有就写null
+	"frontModKeys":null //前置模组的key, 没有就写null
+}

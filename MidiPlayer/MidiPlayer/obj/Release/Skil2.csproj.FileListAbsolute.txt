@@ -1,0 +1,8 @@
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\bin\Release\Skil.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\bin\Release\Skil.pdb
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\bin\Release\Terraria.exe
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\obj\Release\Skil2.csproj.CoreCompileInputs.cache
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\obj\Release\Skil2.csproj.CopyComplete
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\obj\Release\Skil.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\obj\Release\Skil.pdb
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\Skil\Skil\Skil\obj\Release\Skil2.csprojAssemblyReference.cache

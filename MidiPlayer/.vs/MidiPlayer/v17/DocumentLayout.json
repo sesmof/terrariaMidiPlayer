@@ -1,0 +1,66 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\sesmof\\Downloads\\tPlainModLoader-1.4.5 (1)\\tPlainModLoader-1.4.5\\Mods\\MidiPlayer\\MidiPlayer\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{147ED815-872E-436B-AC16-9017D9DF8D4F}|MidiPlayer\\MidiPlayer.csproj|c:\\users\\sesmof\\downloads\\tplainmodloader-1.4.5 (1)\\tplainmodloader-1.4.5\\mods\\midiplayer\\midiplayer\\midiplayer\\content\\music_play.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{147ED815-872E-436B-AC16-9017D9DF8D4F}|MidiPlayer\\MidiPlayer.csproj|solutionrelative:midiplayer\\content\\music_play.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{147ED815-872E-436B-AC16-9017D9DF8D4F}|MidiPlayer\\MidiPlayer.csproj|c:\\users\\sesmof\\downloads\\tplainmodloader-1.4.5 (1)\\tplainmodloader-1.4.5\\mods\\midiplayer\\midiplayer\\midiplayer\\content\\skillistcontrols.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{147ED815-872E-436B-AC16-9017D9DF8D4F}|MidiPlayer\\MidiPlayer.csproj|solutionrelative:midiplayer\\content\\skillistcontrols.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "music_play.cs",
+              "DocumentMoniker": "C:\\Users\\sesmof\\Downloads\\tPlainModLoader-1.4.5 (1)\\tPlainModLoader-1.4.5\\Mods\\MidiPlayer\\MidiPlayer\\MidiPlayer\\Content\\music_play.cs",
+              "RelativeDocumentMoniker": "MidiPlayer\\Content\\music_play.cs",
+              "ToolTip": "C:\\Users\\sesmof\\Downloads\\tPlainModLoader-1.4.5 (1)\\tPlainModLoader-1.4.5\\Mods\\MidiPlayer\\MidiPlayer\\MidiPlayer\\Content\\music_play.cs",
+              "RelativeToolTip": "MidiPlayer\\Content\\music_play.cs",
+              "ViewState": "AgIAALYAAAAAAAAAAAAiwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-08T09:01:33.597Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{08a1bf1d-7967-4afc-8253-1790862ab8c9}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SkilListControls.cs",
+              "DocumentMoniker": "C:\\Users\\sesmof\\Downloads\\tPlainModLoader-1.4.5 (1)\\tPlainModLoader-1.4.5\\Mods\\MidiPlayer\\MidiPlayer\\MidiPlayer\\Content\\SkilListControls.cs",
+              "RelativeDocumentMoniker": "MidiPlayer\\Content\\SkilListControls.cs",
+              "ToolTip": "C:\\Users\\sesmof\\Downloads\\tPlainModLoader-1.4.5 (1)\\tPlainModLoader-1.4.5\\Mods\\MidiPlayer\\MidiPlayer\\MidiPlayer\\Content\\SkilListControls.cs*",
+              "RelativeToolTip": "MidiPlayer\\Content\\SkilListControls.cs*",
+              "ViewState": "AgIAACYAAAAAAAAAAAA0wDIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-08T09:01:32.97Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

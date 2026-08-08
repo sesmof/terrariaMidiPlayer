@@ -1,0 +1,7 @@
+{
+	"name":"MidiPlayer",//模组名字, 没有就写null
+	"author":"sesmof&gemini",//没有就写null
+	//详细信息页面
+	"jumpPath":"https://github.com/github-user-64/tPlainModLoader",//跳转链接, 没有就写null
+	"description":"播放转码过的midi音乐"//没有就写null
+}

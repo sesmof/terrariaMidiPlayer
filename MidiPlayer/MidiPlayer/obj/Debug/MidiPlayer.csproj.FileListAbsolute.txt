@@ -1,0 +1,6 @@
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\bin\Debug\MidiPlayer.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\bin\Debug\MidiPlayer.pdb
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\Debug\MidiPlayer.csprojAssemblyReference.cache
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\Debug\MidiPlayer.csproj.CoreCompileInputs.cache
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\Debug\MidiPlayer.dll
+C:\Users\sesmof\Downloads\tPlainModLoader-1.4.5 (1)\tPlainModLoader-1.4.5\Mods\MidiPlayer\MidiPlayer\MidiPlayer\obj\Debug\MidiPlayer.pdb
