@@ -1,4 +1,3 @@
-﻿
 using CommandHelp;
 using Microsoft.Xna.Framework;
 using Skil.Utils;
@@ -54,18 +53,6 @@ namespace Skil.Content
         }
     }
 
-
-    //internal class MidiPlayerSetting : ModSetting
-    //{
-    //    public override string Name => "MidiPlayer";
-    //    public override string Title => "MIDI多轨播放器设置";
-
-    //    public override UIElement GetUI()
-    //    {
-    //        // 直接用你原本的 get3 配合你的嵌套 UI 列表
-    //        return UIBuild.get3(musicplay.GetUI());
-    //    }
-    //}
     public class musicplay : PatchPlayer
     {
         private const int ITEM_ID_HARP = 508;
@@ -78,6 +65,7 @@ namespace Skil.Content
         public static GetSetReset<int> SongIndex = new GetSetReset<int>(13, 13);
         public static GetSetReset<bool> LoopPlay = new GetSetReset<bool>(true, true);
         public static GetSetReset<float> SemitoneShift = new GetSetReset<float>(0f, 0f);
+        public static GetSetReset<float> CustomBPM = new GetSetReset<float>(0f, 0f); // 0表示默认
 
         private static int _currentSongIdx = -1;
         private static List<TrackPlayerState> _activeTracks = new List<TrackPlayerState>();
@@ -92,6 +80,7 @@ namespace Skil.Content
                 .SkilCMDBuild("song", SongIndex)
                 .SkilCMDBuild("loop", LoopPlay)
                 .SkilCMDBuild("semitone", SemitoneShift)
+                .SkilCMDBuild("bpm", CustomBPM)
             };
         }
 
@@ -101,7 +90,8 @@ namespace Skil.Content
             {
                 UIBuild.get1(Enable, LoopPlay, (s) => bool.Parse(s), "<bool> 自动循环播放 MIDI 曲目", "Images/Extra_19", "MIDI多轨播放器-总开关"),
                 UIBuild.get6(SongIndex, int.Parse, "<int> 播放歌曲序号", "Images/Extra_19", "MIDI歌曲序号"),
-                UIBuild.get6(SemitoneShift, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 全局半音偏移调整", "Images/Extra_19", "MIDI半音调整")
+                UIBuild.get6(SemitoneShift, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 全局半音偏移调整", "Images/Extra_19", "MIDI半音调整"),
+                UIBuild.get6(CustomBPM, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 自定义 BPM (0为默认)", "Images/Extra_19", "MIDI速度BPM")
             };
         }
 
@@ -171,7 +161,14 @@ namespace Skil.Content
             {
                 MidiNote nextNote = state.Track.Notes[state.NoteIndex];
 
-                if (state.FrameTimer >= nextNote.delayFrames)
+                // 计算受 BPM 影响的目标延迟帧数（默认基准为 120 BPM，若 BPM 为 0 则不缩放）
+                int targetDelay = nextNote.delayFrames;
+                if (targetDelay > 0 && CustomBPM.val > 0f)
+                {
+                    targetDelay = Math.Max(1, (int)Math.Round(targetDelay * (120f / CustomBPM.val)));
+                }
+
+                if (state.FrameTimer >= targetDelay)
                 {
                     if (state.IsDrum)
                     {
@@ -186,15 +183,24 @@ namespace Skil.Content
                         PerformInstrumentSound(player, state.InstType, adjustedPitch);
                     }
 
-                    state.FrameTimer -= nextNote.delayFrames;
+                    state.FrameTimer -= targetDelay;
                     state.NoteIndex++;
                     playedThisFrame++;
 
                     if (playedThisFrame >= 8) break;
 
-                    if (state.NoteIndex < state.Track.Notes.Count && state.Track.Notes[state.NoteIndex].delayFrames > 0)
+                    if (state.NoteIndex < state.Track.Notes.Count)
                     {
-                        break;
+                        int nextTargetDelay = state.Track.Notes[state.NoteIndex].delayFrames;
+                        if (nextTargetDelay > 0 && CustomBPM.val > 0f)
+                        {
+                            nextTargetDelay = Math.Max(1, (int)Math.Round(nextTargetDelay * (120f / CustomBPM.val)));
+                        }
+
+                        if (nextTargetDelay > 0)
+                        {
+                            break;
+                        }
                     }
                 }
                 else
@@ -248,10 +254,10 @@ namespace Skil.Content
             float safePitch = MathHelper.Clamp(pitch, -1f, 1f);
             int itemId = GetItemIdForInstrument(instType);
 
-            // 1. 本地播放：通过反射调用原生 SoundEngine，带上与发包完全一致的原始 pitch
+            // 1. 本地播放：调用适配 1.4.5 的底层逻辑
             PlayVanillaPacket58SoundLocal(player, itemId, safePitch);
 
-            // 2. 联机广播：完美的 5 -> 58 -> 5 手持伪装发包，保证其他客户端能听见并识别乐器
+            // 2. 联机广播
             if (Main.netMode == 1)
             {
                 SendInstrumentNetworkHandshake(player, itemId, safePitch);
@@ -288,26 +294,21 @@ namespace Skil.Content
         {
             try
             {
-                // 1. 处理拥有独立播放方法的特殊乐器 (雨歌等吉他类、架子鼓)
-                // 对应原版：if (type7 == 4372 || type7 == 4057 || type7 == 4715) ...
-                if (itemId == 4372 || itemId == 4057 || itemId == 4715) // 4372 为雨歌 Rain Song
+                if (itemId == 4372 || itemId == 4057 || itemId == 4715) // 雨歌等吉他类
                 {
                     player.PlayGuitarChord(pitch);
                     return;
                 }
 
-                if (itemId == 4673) // 4673 为架子鼓
+                if (itemId == 4673) // 架子鼓
                 {
                     player.PlayDrums(pitch);
                     return;
                 }
 
-                // 2. 处理普通原版乐器 (竖琴、铃铛、吉他斧)
-                // 核心：像原版底层一样，通过修改全局变量来控制音高
                 Main.musicPitch = pitch;
 
-                // 使用逆向代码中明确指定的 LegacySoundStyle
-                Terraria.Audio.LegacySoundStyle style = SoundID.Item26; // 默认: 竖琴 
+                LegacySoundStyle style = SoundID.Item26; // 默认: 竖琴 
 
                 if (itemId == 507) // ITEM_ID_BELL
                 {
@@ -318,15 +319,12 @@ namespace Skil.Content
                     style = SoundID.Item47;
                 }
 
-                // 3. 严格使用原版逆向代码中的 PlaySound 签名
-                Terraria.Audio.SoundEngine.PlaySound(style, player.position, 0f, 1f);
+                SoundEngine.PlaySound(style, player.position, 0f, 1f);
 
-                // 4. 播放完成后，务必重置该全局变量，防止导致游戏内其他音效走调
                 Main.musicPitch = 0f;
             }
             catch
             {
-                // 异常吞咽，保持与原逻辑一致
             }
         }
 
@@ -384,4 +382,3 @@ namespace Skil.Content
         }
     }
 }
-
