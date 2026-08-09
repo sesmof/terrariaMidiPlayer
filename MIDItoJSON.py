@@ -327,5 +327,6 @@ if __name__ == "__main__":
     process_and_export_tracks(
         midi_path=r"C:\Users\sesmof\Downloads\12. Lunatic Eyes ~ Invisible Full Moon (ZUN).mid",    
         output_dir=r"C:\Users\sesmof\Documents\My Games\Terraria\MidiSongs",                        
-        max_notes_per_frame=3
+        max_notes_per_frame=3,
+        song_id=67
     )
