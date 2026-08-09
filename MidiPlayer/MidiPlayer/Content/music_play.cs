@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using tContentPatch;
 using Terraria;
 using Terraria.Audio;
+using Terraria.GameContent.Drawing;
 using Terraria.ID;
 using Terraria.UI;
 
@@ -64,6 +65,7 @@ namespace Skil.Content
         public static GetSetReset<bool> Enable = new GetSetReset<bool>();
         public static GetSetReset<int> SongIndex = new GetSetReset<int>(13, 13);
         public static GetSetReset<bool> LoopPlay = new GetSetReset<bool>(true, true);
+        public static GetSetReset<int> ShowVisuals = new GetSetReset<int>(1, 1); // 0是无特效，1是有特效，默认1
         public static GetSetReset<float> SemitoneShift = new GetSetReset<float>(0f, 0f);
         public static GetSetReset<float> CustomBPM = new GetSetReset<float>(0f, 0f); // 0表示默认
 
@@ -79,6 +81,7 @@ namespace Skil.Content
                 CommandBuild.get3("skil_instrument", Enable)
                 .SkilCMDBuild("song", SongIndex)
                 .SkilCMDBuild("loop", LoopPlay)
+                .SkilCMDBuild("visuals", ShowVisuals)
                 .SkilCMDBuild("semitone", SemitoneShift)
                 .SkilCMDBuild("bpm", CustomBPM)
             };
@@ -89,6 +92,7 @@ namespace Skil.Content
             return new List<UIElement>()
             {
                 UIBuild.get1(Enable, LoopPlay, (s) => bool.Parse(s), "<bool> 自动循环播放 MIDI 曲目", "Images/Extra_19", "MIDI多轨播放器-总开关"),
+                UIBuild.get6(ShowVisuals, int.Parse, "<int> 乐器特效开关 (0:无特效, 1:有特效)", "Images/Extra_19", "MIDI乐器特效开关"),
                 UIBuild.get6(SongIndex, int.Parse, "<int> 播放歌曲序号", "Images/Extra_19", "MIDI歌曲序号"),
                 UIBuild.get6(SemitoneShift, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 全局半音偏移调整", "Images/Extra_19", "MIDI半音调整"),
                 UIBuild.get6(CustomBPM, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 自定义 BPM (0为默认)", "Images/Extra_19", "MIDI速度BPM")
@@ -161,7 +165,6 @@ namespace Skil.Content
             {
                 MidiNote nextNote = state.Track.Notes[state.NoteIndex];
 
-                // 计算受 BPM 影响的目标延迟帧数（默认基准为 120 BPM，若 BPM 为 0 则不缩放）
                 int targetDelay = nextNote.delayFrames;
                 if (targetDelay > 0 && CustomBPM.val > 0f)
                 {
@@ -216,35 +219,64 @@ namespace Skil.Content
         {
             _activeTracks.Clear();
 
-            var trackDefinitions = new (string suffix, InstrumentType inst, bool isDrum)[]
-            {
-                ("", InstrumentType.Harp, false),
-                ("_guitar", InstrumentType.TheAxe, false),
-                ("_bell", InstrumentType.Bell, false),
-                ("_rain_song", InstrumentType.RainSong, false),
-                ("_drums", InstrumentType.Harp, true)
-            };
+            if (!Directory.Exists(SongsDirPath)) return;
 
-            foreach (var def in trackDefinitions)
-            {
-                string fileName = $"song_{index}{def.suffix}.json";
-                string filePath = Path.Combine(SongsDirPath, fileName);
+            string[] filePaths = Directory.GetFiles(SongsDirPath, $"song_{index}*.json");
 
-                if (File.Exists(filePath))
+            foreach (string filePath in filePaths)
+            {
+                string fileName = Path.GetFileName(filePath);
+                MidiTrack parsedTrack = ParseJsonTrack(filePath, out string instStr);
+
+                if (parsedTrack != null && parsedTrack.Notes.Count > 0)
                 {
-                    MidiTrack parsedTrack = ParseJsonTrack(filePath, def.isDrum);
-                    if (parsedTrack != null && parsedTrack.Notes.Count > 0)
+                    var (instType, isDrum) = GetInstrumentTypeFromString(instStr, fileName);
+                    _activeTracks.Add(new TrackPlayerState
                     {
-                        _activeTracks.Add(new TrackPlayerState
-                        {
-                            Track = parsedTrack,
-                            InstType = def.inst,
-                            IsDrum = def.isDrum
-                        });
-                        Main.NewText($"[MIDI播放器] 已加载音轨: {fileName} ({parsedTrack.Notes.Count} 音符)", 100, 255, 100);
-                    }
+                        Track = parsedTrack,
+                        InstType = instType,
+                        IsDrum = isDrum
+                    });
+                    Main.NewText($"[MIDI播放器] 已加载音轨: {fileName} ({parsedTrack.Notes.Count} 音符, 乐器: {instStr})", 100, 255, 100);
                 }
             }
+        }
+
+        private static (InstrumentType instType, bool isDrum) GetInstrumentTypeFromString(string instStr, string fileName)
+        {
+            if (string.IsNullOrEmpty(instStr))
+            {
+                string lowerName = fileName.ToLowerInvariant();
+                if (lowerName.Contains("drum")) return (InstrumentType.Harp, true);
+                if (lowerName.Contains("guitar")) return (InstrumentType.TheAxe, false);
+                if (lowerName.Contains("bell")) return (InstrumentType.Bell, false);
+                if (lowerName.Contains("rain_song")) return (InstrumentType.RainSong, false);
+                return (InstrumentType.Harp, false);
+            }
+
+            string lower = instStr.ToLowerInvariant();
+            if (lower.Contains("drum"))
+            {
+                return (InstrumentType.Harp, true);
+            }
+            if (lower == "guitar")
+            {
+                return (InstrumentType.TheAxe, false);
+            }
+            if (lower == "bell")
+            {
+                return (InstrumentType.Bell, false);
+            }
+            if (lower == "rain_song" || lower == "rainsong")
+            {
+                return (InstrumentType.RainSong, false);
+            }
+            if (lower == "harp")
+            {
+                return (InstrumentType.Harp, false);
+            }
+
+            return (InstrumentType.Harp, false);
         }
 
         public static void PerformInstrumentSound(Player player, InstrumentType instType, float pitch)
@@ -254,14 +286,14 @@ namespace Skil.Content
             float safePitch = MathHelper.Clamp(pitch, -1f, 1f);
             int itemId = GetItemIdForInstrument(instType);
 
-            // 1. 本地播放：调用适配 1.4.5 的底层逻辑
             PlayVanillaPacket58SoundLocal(player, itemId, safePitch);
 
-            // 2. 联机广播
             if (Main.netMode == 1)
             {
                 SendInstrumentNetworkHandshake(player, itemId, safePitch);
             }
+
+            PerformInstrumentVisualEffects(player, itemId);
         }
 
         public static void PerformDrumSound(Player player, float drumPitch)
@@ -276,6 +308,69 @@ namespace Skil.Content
             {
                 SendInstrumentNetworkHandshake(player, ITEM_ID_DRUMSTICK, safePitch);
             }
+
+            PerformInstrumentVisualEffects(player, ITEM_ID_DRUMSTICK);
+        }
+
+        /// <summary>
+        /// 核心视觉特效：平稳的头顶扇形乐器悬浮贴图 + 同步生成的 7 号 Particle 粒子
+        /// </summary>
+        private static void PerformInstrumentVisualEffects(Player player, int itemId)
+        {
+            if (player == null || !player.active || player.dead) return;
+            if (ShowVisuals.val <= 0) return; // 如果变量值为 0 或更小，则不显示特效（共用开关）
+
+            Vector2 baseHeadPos = player.Center + new Vector2(0f, -38f);
+            Vector2 offset = GetInstrumentFanOffset(itemId);
+
+            // 1. 计算带有随机抖动的最终目标坐标（作为起点）
+            Vector2 shakeOffset = new Vector2(Main.rand.NextFloat() * 3f - 1.5f, Main.rand.NextFloat() * 3f - 1.5f);
+            Vector2 finalPos = baseHeadPos + offset + shakeOffset;
+
+            // 粒子特效 1：物品悬浮贴图
+            ParticleOrchestrator.RequestParticleSpawn(
+                clientOnly: false, // 允许服务器广播给所有联机玩家
+                ParticleOrchestraType.ItemTransfer,
+                new ParticleOrchestraSettings
+                {
+                    PositionInWorld = finalPos,    // 起点：设为抖动后的精准坐标
+                    MovementVector = Vector2.Zero, // 终点偏移量：必须为零！这样终点就等于起点，实现原地定点静止
+                    UniqueInfoPiece = itemId       // 传入物品ID，渲染对应的乐器贴图
+                }
+            );
+
+            // 粒子特效 2：参考 skil22 的方式，使用 ParticleOrchestrator 真正生成 7 号 Particle 粒子
+            Vector2 particleVel = new Vector2(Main.rand.NextFloat() * 2f - 1f, Main.rand.NextFloat() * 1f - 1.5f);
+            ParticleOrchestrator.RequestParticleSpawn(
+                clientOnly: false,
+                (ParticleOrchestraType)7,
+                new ParticleOrchestraSettings
+                {
+                    PositionInWorld = finalPos,
+                    MovementVector = particleVel,
+                    UniqueInfoPiece = 1000 // 默认按 1.0 比例缩放 (scale * 1000f)
+                }
+            );
+        }
+
+        /// <summary>
+        /// 定义头顶扇形排列的精确坐标偏移（已扩大间距）：
+        /// 最左边：铃铛 | 左边：Guitar | 中间：竖琴 | 右边：鼓 | 最右边：雨歌
+        /// </summary>
+        private static Vector2 GetInstrumentFanOffset(int itemId)
+        {
+            if (itemId == ITEM_ID_BELL)        // 最左边：铃铛
+                return new Vector2(-80f, -10f);
+            if (itemId == ITEM_ID_THE_AXE)      // 左边：Guitar
+                return new Vector2(-40f, -22f);
+            if (itemId == ITEM_ID_HARP)        // 中间：竖琴
+                return new Vector2(0f, -32f);
+            if (itemId == ITEM_ID_DRUMSTICK)   // 右边：鼓
+                return new Vector2(40f, -22f);
+            if (itemId == ITEM_ID_RAIN_SONG)   // 最右边：雨歌
+                return new Vector2(80f, -10f);
+
+            return new Vector2(0f, -32f); // 默认兜底：中间
         }
 
         private static int GetItemIdForInstrument(InstrumentType type)
@@ -294,13 +389,13 @@ namespace Skil.Content
         {
             try
             {
-                if (itemId == 4372 || itemId == 4057 || itemId == 4715) // 雨歌等吉他类
+                if (itemId == 4372 || itemId == 4057 || itemId == 4715)
                 {
                     player.PlayGuitarChord(pitch);
                     return;
                 }
 
-                if (itemId == 4673) // 架子鼓
+                if (itemId == 4673)
                 {
                     player.PlayDrums(pitch);
                     return;
@@ -308,13 +403,13 @@ namespace Skil.Content
 
                 Main.musicPitch = pitch;
 
-                LegacySoundStyle style = SoundID.Item26; // 默认: 竖琴 
+                LegacySoundStyle style = SoundID.Item26;
 
-                if (itemId == 507) // ITEM_ID_BELL
+                if (itemId == 507)
                 {
                     style = SoundID.Item35;
                 }
-                else if (itemId == 1305) // ITEM_ID_THE_AXE
+                else if (itemId == 1305)
                 {
                     style = SoundID.Item47;
                 }
@@ -350,8 +445,9 @@ namespace Skil.Content
             }
         }
 
-        private static MidiTrack ParseJsonTrack(string filePath, bool isDrum)
+        private static MidiTrack ParseJsonTrack(string filePath, out string instrumentStr)
         {
+            instrumentStr = "harp";
             try
             {
                 string jsonContent = File.ReadAllText(filePath);
@@ -360,6 +456,14 @@ namespace Skil.Content
                 Match titleMatch = Regex.Match(jsonContent, @"""Title""\s*:\s*""([^""]+)""");
                 if (titleMatch.Success) track.Title = titleMatch.Groups[1].Value;
 
+                Match instMatch = Regex.Match(jsonContent, @"""Instrument""\s*:\s*""([^""]+)""");
+                if (instMatch.Success)
+                {
+                    track.Instrument = instMatch.Groups[1].Value;
+                    instrumentStr = track.Instrument;
+                }
+
+                bool isDrum = instrumentStr.ToLowerInvariant().Contains("drum");
                 string pitchKey = isDrum ? "drumPitch" : "pitch";
                 string pattern = $@"""delayFrames""\s*:\s*(-?\d+)[\s\S]*?""{pitchKey}""\s*:\s*(-?\d+(?:\.\d+)?)";
                 MatchCollection matches = Regex.Matches(jsonContent, pattern);
