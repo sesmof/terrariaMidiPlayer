@@ -2,14 +2,17 @@ import json
 import os
 import struct
 import sys
-import io
 
-#caocaobi 1.5
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr.encoding != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 CENTER_NOTE = 72       # 泰拉瑞亚中央 C (C5)
 GAME_FPS = 60          # Terraria 游戏帧率
 DRUM_CHANNEL = 9       # GM 鼓组通道
+
+
+
 
 
 def get_instrument_type(program_id):
@@ -330,8 +333,14 @@ def process_and_export_tracks(midi_path, output_dir, song_id=13, max_notes_per_f
 
 if __name__ == "__main__":
     process_and_export_tracks(
-        midi_path=r"C:\Users\sesmof\Downloads\Queen - Bohemian Rhapsody.mid",    
-        output_dir=r"C:\Users\sesmof\Documents\My Games\Terraria\MidiSongs",                        
-        max_notes_per_frame=3,
-        song_id=68
+        midi_path=r"C:\Users\sesmof\Downloads\th06_15 (2).mid",
+        output_dir=r"C:\Users\sesmof\Documents\My Games\Terraria\MidiSongs",
+        song_id=67,
+        max_notes_per_frame=3
     )
+
+
+
+
+
+
