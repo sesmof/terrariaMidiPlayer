@@ -1,7 +1,12 @@
 import json
 import os
 import struct
+import sys
+import io
 
+#caocaobi 1.5
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 CENTER_NOTE = 72       # 泰拉瑞亚中央 C (C5)
 GAME_FPS = 60          # Terraria 游戏帧率
 DRUM_CHANNEL = 9       # GM 鼓组通道
@@ -325,8 +330,8 @@ def process_and_export_tracks(midi_path, output_dir, song_id=13, max_notes_per_f
 
 if __name__ == "__main__":
     process_and_export_tracks(
-        midi_path=r"C:\Users\sesmof\Downloads\12. Lunatic Eyes ~ Invisible Full Moon (ZUN).mid",    
+        midi_path=r"C:\Users\sesmof\Downloads\Queen - Bohemian Rhapsody.mid",    
         output_dir=r"C:\Users\sesmof\Documents\My Games\Terraria\MidiSongs",                        
         max_notes_per_frame=3,
-        song_id=67
+        song_id=68
     )
