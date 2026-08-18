@@ -65,9 +65,19 @@ namespace Skil.Content
         public static GetSetReset<bool> Enable = new GetSetReset<bool>();
         public static GetSetReset<int> SongIndex = new GetSetReset<int>(13, 13);
         public static GetSetReset<bool> LoopPlay = new GetSetReset<bool>(true, true);
-        public static GetSetReset<int> ShowVisuals = new GetSetReset<int>(1, 1); // 0是无特效，1是有特效，默认1
+
+        // 修改1: 将显示特效逻辑改为 bool 开关
+        public static GetSetReset<bool> ShowVisuals = new GetSetReset<bool>(true, true);
+
         public static GetSetReset<float> SemitoneShift = new GetSetReset<float>(0f, 0f);
         public static GetSetReset<float> CustomBPM = new GetSetReset<float>(0f, 0f); // 0表示默认
+
+        // 修改2: 增加各个乐器的单独快捷开关
+        public static GetSetReset<bool> EnableHarp = new GetSetReset<bool>(true, true);
+        public static GetSetReset<bool> EnableGuitar = new GetSetReset<bool>(true, true);
+        public static GetSetReset<bool> EnableBell = new GetSetReset<bool>(true, true);
+        public static GetSetReset<bool> EnableRainSong = new GetSetReset<bool>(true, true);
+        public static GetSetReset<bool> EnableDrum = new GetSetReset<bool>(true, true);
 
         private static int _currentSongIdx = -1;
         private static List<TrackPlayerState> _activeTracks = new List<TrackPlayerState>();
@@ -84,6 +94,12 @@ namespace Skil.Content
                 .SkilCMDBuild("visuals", ShowVisuals)
                 .SkilCMDBuild("semitone", SemitoneShift)
                 .SkilCMDBuild("bpm", CustomBPM)
+                // 注册新乐器开关到指令
+                .SkilCMDBuild("harp", EnableHarp)
+                .SkilCMDBuild("guitar", EnableGuitar)
+                .SkilCMDBuild("bell", EnableBell)
+                .SkilCMDBuild("rain_song", EnableRainSong)
+                .SkilCMDBuild("drum", EnableDrum)
             };
         }
 
@@ -92,7 +108,17 @@ namespace Skil.Content
             return new List<UIElement>()
             {
                 UIBuild.get1(Enable, LoopPlay, (s) => bool.Parse(s), "<bool> 自动循环播放 MIDI 曲目", "Images/Extra_19", "MIDI多轨播放器-总开关"),
-                UIBuild.get6(ShowVisuals, int.Parse, "<int> 乐器特效开关 (0:无特效, 1:有特效)", "Images/Extra_19", "MIDI乐器特效开关"),
+                
+                // 将特效按钮改为 get2 布尔开关
+                UIBuild.get2(ShowVisuals, "<bool> 乐器特效开关 (显示悬浮乐器及粒子)", "Images/Extra_19", "MIDI乐器特效开关"),
+                
+                // 新增五个乐器的单独控制 UI
+                UIBuild.get2(EnableDrum, "<bool> 启用/静音 鼓声 (Drum) 音轨", "Images/Extra_19", "音轨开关 - 鼓声 (Drum)"),
+                UIBuild.get2(EnableGuitar, "<bool> 启用/静音 吉他 (Guitar) 音轨", "Images/Extra_19", "音轨开关 - 吉他 (Guitar)"),
+                UIBuild.get2(EnableBell, "<bool> 启用/静音 铃铛 (Bell) 音轨", "Images/Extra_19", "音轨开关 - 铃铛 (Bell)"),
+                UIBuild.get2(EnableRainSong, "<bool> 启用/静音 雨歌 (Rain Song) 音轨", "Images/Extra_19", "音轨开关 - 雨歌 (Rain Song)"),
+                UIBuild.get2(EnableHarp, "<bool> 启用/静音 竖琴 (Harp) 音轨", "Images/Extra_19", "音轨开关 - 竖琴 (Harp)"),
+
                 UIBuild.get6(SongIndex, int.Parse, "<int> 播放歌曲序号", "Images/Extra_19", "MIDI歌曲序号"),
                 UIBuild.get6(SemitoneShift, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 全局半音偏移调整", "Images/Extra_19", "MIDI半音调整"),
                 UIBuild.get6(CustomBPM, (s) => float.Parse(s, CultureInfo.InvariantCulture), "<float> 自定义 BPM (0为默认)", "Images/Extra_19", "MIDI速度BPM")
@@ -173,17 +199,33 @@ namespace Skil.Content
 
                 if (state.FrameTimer >= targetDelay)
                 {
+                    // 在执行播放前，判断该乐器的开关是否处于开启状态
                     if (state.IsDrum)
                     {
-                        PerformDrumSound(player, nextNote.pitch);
+                        if (EnableDrum.val)
+                        {
+                            PerformDrumSound(player, nextNote.pitch);
+                        }
                     }
                     else
                     {
-                        float rawShift = SemitoneShift.val / 12.0f;
-                        float clampedShift = MathHelper.Clamp(rawShift, -1.0f, 1.0f);
-                        float adjustedPitch = nextNote.pitch + clampedShift;
+                        bool shouldPlay = false;
+                        switch (state.InstType)
+                        {
+                            case InstrumentType.Harp: shouldPlay = EnableHarp.val; break;
+                            case InstrumentType.TheAxe: shouldPlay = EnableGuitar.val; break;
+                            case InstrumentType.Bell: shouldPlay = EnableBell.val; break;
+                            case InstrumentType.RainSong: shouldPlay = EnableRainSong.val; break;
+                        }
 
-                        PerformInstrumentSound(player, state.InstType, adjustedPitch);
+                        if (shouldPlay)
+                        {
+                            float rawShift = SemitoneShift.val / 12.0f;
+                            float clampedShift = MathHelper.Clamp(rawShift, -1.0f, 1.0f);
+                            float adjustedPitch = nextNote.pitch + clampedShift;
+
+                            PerformInstrumentSound(player, state.InstType, adjustedPitch);
+                        }
                     }
 
                     state.FrameTimer -= targetDelay;
@@ -318,7 +360,8 @@ namespace Skil.Content
         private static void PerformInstrumentVisualEffects(Player player, int itemId)
         {
             if (player == null || !player.active || player.dead) return;
-            if (ShowVisuals.val <= 0) return; // 如果变量值为 0 或更小，则不显示特效（共用开关）
+            // 判断修改为对 bool 进行读取
+            if (!ShowVisuals.val) return;
 
             Vector2 baseHeadPos = player.Center + new Vector2(0f, -38f);
             Vector2 offset = GetInstrumentFanOffset(itemId);
