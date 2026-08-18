@@ -24,7 +24,7 @@ def get_instrument_type(program_id):
     if 0 <= program_id <= 15:
         return harp          # 竖琴 / 钢琴类 (508)  -竖琴
     elif 16 <= program_id <= 23:
-        return rain_song    # 雨歌吉他 / 风琴类 (4057)   -雨哥
+        return harp    # 雨歌吉他 / 风琴类 (4057)   -雨哥
     elif 24 <= program_id <= 39:
         return guitar       # 斧吉他 / 吉他/贝斯类 (1305)  -电吉他
     elif program_id in (8, 9, 10, 11, 14, 98, 108, 112):
@@ -333,9 +333,9 @@ def process_and_export_tracks(midi_path, output_dir, song_id=13, max_notes_per_f
 
 if __name__ == "__main__":
     process_and_export_tracks(
-        midi_path=r"C:\Users\sesmof\Downloads\th06_15 (2).mid",
+        midi_path=r"C:\Users\sesmof\Downloads\King Crimson — Moonchild [MIDIfind.com].mid",
         output_dir=r"C:\Users\sesmof\Documents\My Games\Terraria\MidiSongs",
-        song_id=67,
+        song_id=67 ,
         max_notes_per_frame=3
     )
 
